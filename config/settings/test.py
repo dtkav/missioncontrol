@@ -53,3 +53,7 @@ EMAIL_PORT = 1025
 
 # Your stuff...
 # ------------------------------------------------------------------------------
+S3_FILE_BUCKET = env(
+    'DJANGO_S3_FILE_BUCKET',
+    default='atestbucket'
+)

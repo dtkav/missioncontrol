@@ -19,6 +19,7 @@ from django.dispatch import receiver
 from django.utils import timezone, dateformat
 from pytz import UTC
 from skyfield.api import Topos, EarthSatellite
+import boto3
 
 from v0.time import iso, utc
 
@@ -423,6 +424,85 @@ class Pass(models.Model, Serializable):
 
     def __str__(self):
         return f"Pass: {self.uuid} - {self.satellite} - {self.groundstation} - {self.start_time}"
+
+
+
+
+class TaskRun(models.Model, Serializable):
+    uuid = models.UUIDField(default=uuid4, unique=True)
+    task = models.TextField()
+    task_stack = models.ForeignKey(TaskStack, on_delete=models.PROTECT, to_field='uuid')
+    task_pass = models.ForeignKey(Pass, on_delete=models.PROTECT, db_column='pass', to_field='uuid')
+    start_time = models.DateTimeField()
+    end_time = models.DateTimeField()
+    exit_code = models.IntegerField()
+
+    def to_dict(self):
+        # Because connexion expects the 'pass' key, but it's a keyword
+        retval = super().to_dict()
+        retval['pass'] = retval.pop('task_pass')
+        # TODO possibly generalize this higher using a property on `Meta`
+        retval['stdout'] = self.stdout
+        retval['stderr'] = self.stderr
+
+        return retval
+
+    def _get_file_cid_if_exists(self, what):
+        try:
+            f = self.files.get(what=what)
+        except S3File.DoesNotExist:
+            return None
+        return f.cid
+
+    @property
+    def stdout(self):
+        # return [x.to_dict() for x in self.files.all()]
+        return self._get_file_cid_if_exists('stdout')
+
+    @property
+    def stderr(self):
+        return self._get_file_cid_if_exists('stderr')
+
+    def __repr__(self):
+        print(self.task_pass)
+        return "<TaskRun: {uuid} - {task}>".format(**self.__dict__)
+
+    def __str__(self):
+        return self.__repr__()
+
+
+
+class S3File(models.Model, Serializable):
+    cid = models.CharField(max_length=128, unique=True)
+    bucket = models.CharField(max_length=64)
+    what = models.TextField()
+    where = models.TextField()
+    created = models.DateTimeField(default=timezone.now)
+    task_run = models.ForeignKey(TaskRun, to_field='uuid', related_name='files',
+                                 on_delete=models.PROTECT, null=True, blank=True)
+
+    # TODO prefix these keys
+    def get_download_url(self):
+        s3 = boto3.client('s3')
+        url = s3.generate_presigned_url(
+            ClientMethod='get_object',
+            Params={
+                'Bucket': self.bucket,
+                'Key': self.cid,
+            }
+        )
+
+        return url
+
+    def get_upload_url(self):
+        s3 = boto3.client('s3')
+        post = s3.generate_presigned_post(
+            Bucket=self.bucket,
+            Key=self.cid
+        )
+
+        return post
+
 
 
 class CachedAccess(models.Model):

@@ -279,3 +279,5 @@ def immutable_file_test(path, url):
 
 
 WHITENOISE_IMMUTABLE_FILE_TEST = immutable_file_test
+
+S3_FILE_BUCKET = env.str('DJANGO_S3_FILE_BUCKET')

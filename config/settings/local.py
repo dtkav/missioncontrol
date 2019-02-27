@@ -68,8 +68,3 @@ if env('USE_DOCKER') == 'yes':
 INSTALLED_APPS += ['django_extensions']  # noqa F405
 # Your stuff...
 # ------------------------------------------------------------------------------
-
-S3_FILE_BUCKET = env(
-    'DJANGO_S3_FILE_BUCKET',
-    default='alocalbucket'
-)

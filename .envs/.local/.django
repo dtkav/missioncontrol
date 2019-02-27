@@ -3,3 +3,4 @@
 USE_DOCKER=yes
 IPYTHONDIR=/app/.ipython
 DJANGO_JWT_SECRET=ILIKEASCREThowlongdoesitNeedtTOBeHey
+DJANGO_S3_FILE_BUCKET=alocalbucket

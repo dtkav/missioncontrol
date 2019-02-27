@@ -5,6 +5,7 @@ import pytest
 from django.conf import settings
 
 
+# TODO use botocore.Stubber
 @patch('home.models.boto3')
 @pytest.mark.django_db
 def test_file_put_get(boto3_mock, test_client, some_hash, simple_file):

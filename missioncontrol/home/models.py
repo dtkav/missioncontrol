@@ -481,14 +481,16 @@ class S3File(models.Model, Serializable):
     task_run = models.ForeignKey(TaskRun, to_field='uuid', related_name='files',
                                  on_delete=models.PROTECT, null=True, blank=True)
 
-    # TODO prefix these keys
+    def get_prefix(self):
+        return f'{settings.S3_FILE_PREFIX}{self.cid}'
+
     def get_download_url(self):
         s3 = boto3.client('s3')
         url = s3.generate_presigned_url(
             ClientMethod='get_object',
             Params={
                 'Bucket': self.bucket,
-                'Key': self.cid,
+                'Key': self.get_prefix(),
             }
         )
 
@@ -498,7 +500,7 @@ class S3File(models.Model, Serializable):
         s3 = boto3.client('s3')
         post = s3.generate_presigned_post(
             Bucket=self.bucket,
-            Key=self.cid
+            Key=self.get_prefix()
         )
 
         return post

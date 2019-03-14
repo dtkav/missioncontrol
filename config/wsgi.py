@@ -51,9 +51,12 @@ class FullPathDispatcher(DispatcherMiddleware):
             path_info = '/%s%s' % (last_item, path_info)
         else:
             app = self.mounts.get(script, self.app)
-        original_script_name = environ.get('SCRIPT_NAME', '')
-        environ['SCRIPT_NAME'] = original_script_name + script
-        environ['PATH_INFO'] = script + path_info
+            environ['SCRIPT_NAME'] = "/api"
+            path_info = environ['PATH_INFO']
+            if path_info.startswith(script_name):
+                environ['PATH_INFO_OLD'] = path_info
+                environ['PATH_INFO'] = path_info[len(script_name):]
+
         return app(environ, start_response)
 
 

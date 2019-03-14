@@ -1,5 +1,5 @@
 from uuid import uuid4
-from connexion.exceptions import ProblemException
+from specific.exceptions import ProblemException
 from home.models import TaskStack, Satellite
 
 

@@ -2,7 +2,7 @@ import json
 
 from base64 import b64encode, b64decode
 from collections import namedtuple
-from connexion.exceptions import ProblemException
+from specific.exceptions import ProblemException
 from itertools import product
 from skyfield.api import Loader, Topos, EarthSatellite
 from home.leaf import LeafPassFile

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import os
-import connexion
+import specific
 
 from django.apps import apps
 from django.conf import settings
@@ -14,13 +14,13 @@ apps.populate(settings.INSTALLED_APPS)
 
 
 def object_does_not_exist(exception):
-    problem = connexion.problem(404, "Object Does Not Exist", str(exception))
-    return connexion.FlaskApi.get_response(problem)
+    problem = specific.problem(404, "Object Does Not Exist", str(exception))
+    return specific.FlaskApi.get_response(problem)
 
 
 def validation_error(exception):
-    problem = connexion.problem(400, "Validation Error", str(exception))
-    return connexion.FlaskApi.get_response(problem)
+    problem = specific.problem(400, "Validation Error", str(exception))
+    return specific.FlaskApi.get_response(problem)
 
 
 
@@ -39,7 +39,7 @@ class CustomJSONEncoder(JSONEncoder):
 
 
 def create_app():
-    app = connexion.FlaskApp(__name__, specification_dir='openapi/', arguments={})
+    app = specific.FlaskApp(__name__, specification_dir='openapi/', arguments={})
     flask_app = app.app
     flask_app.json_encoder = CustomJSONEncoder
     app.add_api('openapi.yaml', strict_validation=True)

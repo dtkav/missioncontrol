@@ -5,7 +5,7 @@ from datetime import timedelta
 from itertools import chain
 from uuid import uuid4
 
-from connexion.exceptions import ProblemException
+from specific.exceptions import ProblemException
 from django.apps import apps
 from django.contrib.postgres.fields import JSONField
 from django.conf import settings
